@@ -35,6 +35,8 @@ void TestProducts() {
     bond = bondProductService->GetData(cusip2);
     cout << "CUSIP: " << bond.GetProductId() << " ==> " << bond << endl;
 
+    delete bondProductService;
+    
     // Create the Spot 10Y Outright Swap
     date effectiveDate(2015, Nov, 16);
     date terminationDate(2025, Nov, 16);
@@ -59,10 +61,55 @@ void TestProducts() {
     swapProductService->Add(imm2YSwap);
     swap = swapProductService->GetData(imm2Y);
     cout << "Swap: " << swap.GetProductId() << " ==> " << swap << endl;
+    
+    delete swapProductService;
+}
+
+void TestFuture() {
+    // Create a 1Y corn future
+    date corn_maturityDate(2023, Dec, 1);
+    string corn_id("ZCZ3");
+    Future corn_future(corn_id, "Corn", 1000, 660, corn_maturityDate);
+    
+    // Create the 10Y treasury note and a bond future with the bond as the underlying asset.
+    date bond_maturityDate(2032, Nov, 15);
+    string cusip = "91282CFV8";
+    Bond treasuryBond(cusip, CUSIP, "T", 2.25, bond_maturityDate);
+    
+    string bond_future_id("ZNH3");
+    date bond_future_maturity(2023, Mar, 1);
+    BondFuture bond_future(bond_future_id, &treasuryBond, 10, 114.215, bond_future_maturity);
+    
+    // Create a 2Y eurodollar future
+    date eurodollar_maturityDate(2023, Dec, 1);
+    string eurodollar_future_id("GEZ3");
+    EuroDollarFuture eurodollar_future(eurodollar_future_id, 100, 96., eurodollar_maturityDate);
+
+    // Create a BondProductService
+    FutureProductService *futureProductService = new FutureProductService();
+
+    // Add the corn future to the BondProductService and retrieve it from the service
+    futureProductService->Add(corn_future);
+    Future retrieved_corn_future = futureProductService->GetData(corn_id);
+    cout << "Future ID: " << retrieved_corn_future.GetProductId() << " ==> " << retrieved_corn_future << endl;
+
+    // Add the bond future to the BondProductService and retrieve it from the service
+    futureProductService->Add(bond_future);
+    Future retrieved_bond_future = futureProductService->GetData(bond_future_id);
+    cout << "Future ID: " << retrieved_bond_future.GetProductId() << " ==> " << retrieved_bond_future << endl;
+
+    
+    // Add the corn future to the BondProductService and retrieve it from the service
+    futureProductService->Add(eurodollar_future);
+    Future retrieved_eurodollar_future = futureProductService->GetData(eurodollar_future_id);
+    cout << "Future ID: " << retrieved_eurodollar_future.GetProductId() << " ==> " << retrieved_eurodollar_future << endl;
+
 }
 
 int main() {
-    TestProducts();
+//    TestProducts();
+    
+    TestFuture();
     
     return 0;
 }

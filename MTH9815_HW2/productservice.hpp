@@ -6,6 +6,7 @@
 #include <map>
 #include "products.hpp"
 #include "soa.hpp"
+#include <vector>
 
 /**
  * Bond Product Service to own reference data over a set of bond securities.
@@ -22,6 +23,10 @@ public:
 
     // Add a bond to the service (convenience method)
     void Add(Bond &bond);
+    
+    // Get all Bonds with the specified ticker
+    vector<Bond> GetBonds(string& _ticker);
+
 
 private:
     map<string,Bond> bondMap; // cache of bond products
@@ -38,15 +43,35 @@ public:
     // IRSwapProductService ctor
     IRSwapProductService();
 
-    // Return the IR Swap data for a particular bond product identifier
+    // Return the IR Swap data for a particular future product identifier
     IRSwap& GetData(string productId);
 
-    // Add a bond to the service (convenience method)
+    // Add a future to the service (convenience method)
     void Add(IRSwap &swap);
 
 private:
     map<string,IRSwap> swapMap; // cache of IR Swap products
 
+};
+
+/**
+ * Future Product Service to own reference data over a set of future products
+ * Key is the productId string, value is a future.
+ */
+
+class FutureProductService : public Service<string,Future> {
+public:
+    // FutureProductService ctor
+    FutureProductService();
+    
+    // Return the future data for a particular future product identifier
+    Future& GetData(string productId);
+
+    // Add a future to the service (convenience method)
+    void Add(Future &future);
+
+private:
+    map<string,Future> futureMap; // cache of future products
 };
 
 BondProductService::BondProductService()
@@ -77,4 +102,19 @@ IRSwap& IRSwapProductService::GetData(string productId)
 void IRSwapProductService::Add(IRSwap &swap)
 {
     swapMap.insert(pair<string,IRSwap>(swap.GetProductId(), swap));
+}
+
+FutureProductService::FutureProductService()
+{
+    futureMap = map<string,Future>();
+}
+
+Future& FutureProductService::GetData(string productId)
+{
+    return futureMap[productId];
+}
+
+void FutureProductService::Add(Future &future)
+{
+    futureMap.insert(pair<string,Future>(future.GetProductId(), future));
 }
