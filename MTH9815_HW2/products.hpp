@@ -175,7 +175,7 @@ private:
 class Future : public Product {
 public:
     // Future ctor
-    Future(string _productId, string _ticker, int _contractSize, float _futuresPrice, date _maturityDate);
+    Future(string _productId, string _ticker, date _maturityDate);
     Future();
 
     // Return the ticker of the future
@@ -183,12 +183,6 @@ public:
 
     // Return the maturity date of the future
     date GetMaturityDate() const;
-    
-    // Return the contract size of the future
-    int GetContractSize() const;
-
-    // Return the futures price
-    float GetFuturesPrice() const;
 
     // Overload the << operator to print out the future
     friend ostream& operator << (ostream &output, const Future &future);
@@ -196,8 +190,6 @@ public:
 private:
     string productId; // product identifier variable
     string ticker; // ticker variable
-    int contractSize; // contract size variable
-    float futuresPrice; // strike price variable
     date maturityDate; // maturity date variable
     
 };
@@ -205,13 +197,13 @@ private:
 class EuroDollarFuture : public Future {
 public:
     // Eurodollar future ctor
-    EuroDollarFuture(string _productId, int _contractSize, float _futuresPrice, date _maturityDate);
+    EuroDollarFuture(string _productId, date _maturityDate);
 };
 
 class BondFuture : public Future {
 public:
     // Bond future ctor
-    BondFuture(string _productId, Bond* _underlyingBond, int _contractSize, float _futuresPrice, date _maturityDate);
+    BondFuture(string _productId, Bond* _underlyingBond, date _maturityDate);
     
     // Get underlying bond
     Bond* GetBond() const;
@@ -425,7 +417,7 @@ string IRSwap::ToString(SwapLegType swapLegType) const
     }
 }
 
-Future::Future(string _productId, string _ticker, int _contractSize, float _futuresPrice, date _maturityDate) : Product(_productId, FUTURE), ticker(_ticker), contractSize(_contractSize), futuresPrice(_futuresPrice), maturityDate(_maturityDate) {}
+Future::Future(string _productId, string _ticker, date _maturityDate) : Product(_productId, FUTURE), ticker(_ticker), maturityDate(_maturityDate) {}
 
 Future::Future() : Product(0, FUTURE) {}
 
@@ -439,25 +431,15 @@ date Future::GetMaturityDate() const {
     return maturityDate;
 }
 
-// Return the contract size of the future
-int Future::GetContractSize() const {
-    return contractSize;
-}
-
-// Return the futures price
-float Future::GetFuturesPrice() const {
-    return futuresPrice;
-}
-
 // Overload the << operator to print out the future
 ostream& operator << (ostream &output, const Future &future) {
-    output << future.ticker << ' ' << future.maturityDate << ' ' << future.contractSize << ' ' << future.futuresPrice;
+    output << future.ticker << ' ' << future.maturityDate;
     return output;
 }
 
-EuroDollarFuture::EuroDollarFuture(string _productId, int _contractSize, float _futuresPrice, date _maturityDate) : Future(_productId, "Eurodollar", _contractSize, _futuresPrice, _maturityDate) {}
+EuroDollarFuture::EuroDollarFuture(string _productId, date _maturityDate) : Future(_productId, "Eurodollar", _maturityDate) {}
 
-BondFuture::BondFuture(string _productId, Bond* _underlyingBond, int _contractSize, float _futuresPrice, date _maturityDate) : Future(_productId, _underlyingBond->GetTicker(), _contractSize, _futuresPrice, _maturityDate) {}
+BondFuture::BondFuture(string _productId, Bond* _underlyingBond, date _maturityDate) : Future(_productId, _underlyingBond->GetTicker(), _maturityDate) {}
 
 Bond* BondFuture::GetBond() const {
     return underlyingBond;
